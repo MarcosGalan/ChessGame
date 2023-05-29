@@ -228,8 +228,8 @@ class MainGameScreen(Scene):
         text_rect = blacks_text.get_rect(center=self.right_small_cream_card.center)
         self.info_surface.blit(blacks_text, text_rect)
 
-        self.draw_recomend_move()
         self.draw_check_king()
+        self.draw_recomend_move()
         self.draw_pieces()
         self.draw_valid_moves_piece()
         self.draw_press_activated()
@@ -238,8 +238,8 @@ class MainGameScreen(Scene):
         self.check_status_game()
 
     def input_board(self, inputStream):
-        if inputStream.keyboard.isKeyDown(97):
-            self.press_recomend_move()
+        """if inputStream.keyboard.isKeyDown(97):
+            self.press_recomend_move()"""
 
         history_list = self.table.get_history()
         time_to_charge = 0.2
@@ -306,6 +306,7 @@ class MainGameScreen(Scene):
                     self.hitbox_valid_moves.clear()
                     self.valid_moves_piece.clear()
                     self.history_count = 0
+                    self.active_recomend_move = False
                     if self.active_ia is True:
                         self.ia_time = True
                     collision_1 = True
@@ -348,12 +349,13 @@ class MainGameScreen(Scene):
                         self.table.append_history_actual_board()
                         self.hitbox_valid_moves.clear()
                         self.valid_moves_piece.clear()
+                        self.active_recomend_move = False
                         self.history_count = 0
                         if self.active_ia is True:
                             self.ia_time = True
 
     def press_recomend_move(self):
-        if self.ia_time is False and self.history_activated is False:
+        if self.ia_time is False and self.history_activated is False and self.active_recomend_move is False:
             self.actual_recomend_move = self.table.recomend_move()
             self.active_recomend_move = True
 
