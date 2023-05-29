@@ -151,6 +151,17 @@ class Ia:
     def change_board_FEN(self, value_board_fen):
         self.__board = chess.Board(value_board_fen)
 
+    def recomend_move(self):
+        engine = chess.engine.SimpleEngine.popen_uci(self.__engine_path)
+        old_spice_2 = self.get_board_FEN()
+        start_node = Board(board=self.__board.fen(), parent=None, childs=[])
+        result = self.minmax(actual_node=start_node, depth=0, max_depth=1, start_time=time.time(),
+                             max_time=5, engine=engine)
+
+        move_ia_uci = self.two_board_to_piece_move(True, old_spice_2, result[1])
+        engine.close()
+        return move_ia_uci
+
     def access_data_base(self, movements_list):
         initial_moves = ["a3", "a4", "b3", "b4", "c3", "c4", "d3", "d4", "e3", "e4", "f3", "f4", "g3", "g4", "h3", "h4",
                          "Na3", "Nc3", "Nf3", "Nh3"]
