@@ -386,9 +386,11 @@ class MainGameScreen(Scene):
     def draw_recomend_move(self):
         if self.active_recomend_move is True and self.history_activated is False:
             self.screen.blit(self.circle4,
-                             self.positions[self.actual_recomend_move[0]])
+                             (self.positions[self.actual_recomend_move[0]][0] * self.aspect_radio_height,
+                              self.positions[self.actual_recomend_move[0]][1] * self.aspect_radio_width))
             self.screen.blit(self.circle4,
-                             self.positions[self.actual_recomend_move[1]])
+                             (self.positions[self.actual_recomend_move[1]][0] * self.aspect_radio_height,
+                              self.positions[self.actual_recomend_move[1]][1] * self.aspect_radio_width))
 
     def draw_check_king(self):
         if self.table.get_board().is_check():
