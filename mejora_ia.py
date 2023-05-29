@@ -160,6 +160,7 @@ class Ia:
 
         move_ia_uci = self.two_board_to_piece_move(True, old_spice_2, result[1])
         engine.close()
+        # Se devuelve el movimiento que haria la IA
         return move_ia_uci
 
     def access_data_base(self, movements_list):
