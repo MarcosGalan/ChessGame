@@ -32,8 +32,6 @@ class MainMenuScreen(Scene):
     def input(self, sm: SceneManager, inputStream: InputStream):
         if inputStream.mouse.isKeyDown(0) and self.start_text_rect.collidepoint(inputStream.mouse.getMousePos()):
             sm.push(GameTypeSelection())
-            pygame.mixer.music.pause()
-            pygame.mixer.music.unload()
         elif inputStream.mouse.isKeyDown(0) and self.quit_text_rect.collidepoint(inputStream.mouse.getMousePos()):
             sm.pop()
 

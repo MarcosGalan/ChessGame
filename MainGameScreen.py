@@ -5,6 +5,7 @@ import pygame
 from SceneManager import SceneManager
 
 from SceneManager import SceneManager
+from SettingsScreen import SettingsScreen
 from Utils.InputStream import InputStream
 from Utils.Scene import Scene
 from Utils.constants import screen_width, screen_height
@@ -25,10 +26,8 @@ class MainGameScreen(Scene):
         self.board_border = pygame.image.load('assets/images/bordes_tablero.png')
         self.board_border = pygame.transform.scale(self.board_border, (screen_height * 0.8, screen_height * 0.8))
 
-        # self.board = pygame.image.load("assets/images/tablero.png")
-        img_boards = ["brown", "green", "blue", "purple", "green-plastic", "newspaper"]
         # Cambiar el choice por algo seleccionado por el usuario
-        self.board = pygame.image.load(f"assets/images/boards/{random.choice(img_boards)}.png")
+        self.board = pygame.image.load(f"assets/images/boards/brown.png")
         self.board = pygame.transform.scale(self.board,
                                             (self.board_border.get_width() * 0.9, self.board_border.get_height() * 0.9))
 
@@ -83,6 +82,21 @@ class MainGameScreen(Scene):
             center=(self.clear_brown_card_rect.left + self.clear_brown_card_rect.width * 0.75,
                     self.clear_brown_card_rect.top - 8))
 
+
+        self.exit_img = pygame.image.load("assets/images/icons/salida.png")
+        self.exit_img = pygame.transform.scale(self.exit_img,(screen_width*0.05,screen_width*0.045))
+        self.exit_img_rect = self.exit_img.get_rect(bottomright = (screen_width-screen_width*0.02,screen_height-screen_height*0.04))
+
+        self.settings_img = pygame.image.load("assets/images/icons/configuraciones.png")
+        self.settings_img = pygame.transform.scale(self.settings_img,(screen_width*0.05,screen_width*0.05))
+        self.settings_img_rect = self.settings_img.get_rect(bottomright = (screen_width-screen_width*0.02,self.settings_img.get_width()+screen_height*0.04))
+
+        self.help_img = pygame.image.load("assets/images/icons/help.png")
+        self.help_img = pygame.transform.scale(self.help_img,(screen_width*0.05,screen_width*0.05))
+        self.help_img_rect = self.help_img.get_rect(topright = (screen_width-screen_width*0.02,self.settings_img_rect.bottom+screen_height*0.04))
+
+
+
         # -----------------------------------------------------------------------------
         self.screen = None
 
@@ -120,7 +134,7 @@ class MainGameScreen(Scene):
         # Posicion inicial rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
         # Probar posicion final "r2k2q1/8/8/8/8/8/8/3K4 w - - 0 1"
         # Probar posicion final "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        self.table = Ia(starting_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", depth=1, time=5,
+        self.table = Ia(starting_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", depth=2, time=5,
                         positions=self.positions)
         self.table.append_history_actual_board()
 
@@ -177,6 +191,14 @@ class MainGameScreen(Scene):
         self.time_counter = time.time()
 
     def input(self, sm: SceneManager, inputStream: InputStream):
+
+        if inputStream.mouse.isKeyDown(0) and self.exit_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            sm.set([sm.scenes[0]])
+        elif inputStream.mouse.isKeyDown(0) and self.settings_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            sm.push(SettingsScreen(self))
+        elif inputStream.mouse.isKeyDown(0) and self.help_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            self.press_recomend_move()
+
         self.input_board(inputStream)
         self.input_mouse(inputStream)
 
@@ -228,6 +250,10 @@ class MainGameScreen(Scene):
         text_rect = blacks_text.get_rect(center=self.right_small_cream_card.center)
         self.info_surface.blit(blacks_text, text_rect)
 
+        screen2.blit(self.exit_img,self.exit_img_rect)
+        screen2.blit(self.settings_img,self.settings_img_rect)
+        screen2.blit(self.help_img,self.help_img_rect)
+
         self.draw_check_king()
         self.draw_recomend_move()
         self.draw_pieces()
@@ -238,8 +264,6 @@ class MainGameScreen(Scene):
         self.check_status_game()
 
     def input_board(self, inputStream):
-        """if inputStream.keyboard.isKeyDown(97):
-            self.press_recomend_move()"""
 
         history_list = self.table.get_history()
         time_to_charge = 0.2

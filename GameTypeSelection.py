@@ -101,7 +101,8 @@ class GameTypeSelection(Scene):
             self.game_selected = 10*60
             self.game_selected_text = "Juego Rapido"
         elif self.yellow_card_rect.collidepoint((inputStream.mouse.getMousePos()[0]-self.info_surface_rect.left,inputStream.mouse.getMousePos()[1]-self.info_surface_rect.top))and inputStream.mouse.isKeyDown(0):
-
+            pygame.mixer.music.pause()
+            pygame.mixer.music.unload()
             sm.set([sm.scenes[0],MainGameScreen(self.player_chess_icon,self.active_ia,self.game_selected)])
 
 
