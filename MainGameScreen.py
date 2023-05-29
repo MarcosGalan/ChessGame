@@ -143,6 +143,11 @@ class MainGameScreen(Scene):
                                               (97 * self.aspect_radio_height, 97 * self.aspect_radio_width))
         self.circle3.set_alpha(200)
 
+        self.circle4 = pygame.image.load("assets/images/img_in_board/verde.png").convert_alpha()
+        self.circle4 = pygame.transform.scale(self.circle4,
+                                              (97 * self.aspect_radio_height, 97 * self.aspect_radio_width))
+        self.circle4.set_alpha(200)
+
         # Cargar Sonidos
         self.sound_move_piece = mixer.Sound('assets/sounds/move.wav')
         self.sound_capture_piece = mixer.Sound('assets/sounds/capture.wav')
@@ -159,6 +164,8 @@ class MainGameScreen(Scene):
         self.ia_time_2 = False  # Si es True significa que le toca mover a la IA
         self.history_activated = False  # Si es True significa que se esta visualizando una jugada anterior
         self.history_count = 0  # Lo que hay que sumarle a la posicion de la lista history
+        self.active_recomend_move = False
+        self.actual_recomend_move = None
         self.press_activated = False  # Si es True significa que el usuario esta pulsando con click izquierdo
         self.piece_pressed = Ia.Piece(self.table, self.screen)  # Es la instancia de la pieza que se esta arrastrando
         self.time_press_arrow = 0  # Contador para el tiempo de pulsado de las flechas
@@ -180,11 +187,6 @@ class MainGameScreen(Scene):
             self.white_player_time -= (time.time() - self.time_counter)
 
         self.time_counter = time.time()
-
-
-
-
-
 
 
     def draw(self, sm: SceneManager, screen2: pygame.surface.Surface):
@@ -226,6 +228,7 @@ class MainGameScreen(Scene):
         text_rect = blacks_text.get_rect(center=self.right_small_cream_card.center)
         self.info_surface.blit(blacks_text, text_rect)
 
+        self.draw_recomend_move()
         self.draw_check_king()
         self.draw_pieces()
         self.draw_valid_moves_piece()
@@ -235,6 +238,9 @@ class MainGameScreen(Scene):
         self.check_status_game()
 
     def input_board(self, inputStream):
+        if inputStream.keyboard.isKeyDown(97):
+            self.press_recomend_move()
+
         history_list = self.table.get_history()
         time_to_charge = 0.2
         actual_time = time.time()
@@ -345,6 +351,18 @@ class MainGameScreen(Scene):
                         self.history_count = 0
                         if self.active_ia is True:
                             self.ia_time = True
+
+    def press_recomend_move(self):
+        if self.ia_time is False and self.history_activated is False:
+            self.actual_recomend_move = self.table.recomend_move()
+            self.active_recomend_move = True
+
+    def draw_recomend_move(self):
+        if self.active_recomend_move is True and self.history_activated is False:
+            self.screen.blit(self.circle4,
+                             self.positions[self.actual_recomend_move[0]])
+            self.screen.blit(self.circle4,
+                             self.positions[self.actual_recomend_move[1]])
 
     def draw_check_king(self):
         if self.table.get_board().is_check():
