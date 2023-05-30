@@ -195,7 +195,8 @@ class MainGameScreen(Scene):
         if inputStream.mouse.isKeyDown(0) and self.exit_img_rect.collidepoint(inputStream.mouse.getMousePos()):
             sm.set([sm.scenes[0]])
         elif inputStream.mouse.isKeyDown(0) and self.settings_img_rect.collidepoint(inputStream.mouse.getMousePos()):
-            sm.push(SettingsScreen(self))
+            # sm.push(SettingsScreen(self))
+            pass
         elif inputStream.mouse.isKeyDown(0) and self.help_img_rect.collidepoint(inputStream.mouse.getMousePos()):
             self.press_recomend_move()
 
