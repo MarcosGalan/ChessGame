@@ -556,7 +556,7 @@ class MainGameScreen(Scene):
         if self.table.get_board().is_stalemate() or self.table.get_board().is_insufficient_material():
             # print("TABLAS")
             # print(self.table.get_board().result())
-            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
             self.history_activated = True
@@ -564,25 +564,25 @@ class MainGameScreen(Scene):
         # PROBANDO
         if self.table.get_board().is_fifty_moves():
             # print("fifty moves")
-            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
             self.history_activated = True
         if self.table.get_board().is_fivefold_repetition():
             # print("five_repitions")
-            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
             self.history_activated = True
         if self.table.get_board().is_seventyfive_moves():
             # print("seventifive moves")
-            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
             self.history_activated = True
         if self.table.get_board().is_repetition():
             # print("is repition")
-            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
             self.history_activated = True
