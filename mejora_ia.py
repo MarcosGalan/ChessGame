@@ -245,9 +245,19 @@ class Ia:
                                  max_time=self.__max_time, engine=engine)
 
             move_ia_uci = self.two_board_to_piece_move(True, old_spice, result[1])
+
             move_ia_san = self.uci_to_san(move_ia_uci[0] + move_ia_uci[1])
-            self.move_piece_san(move_ia_san)
-            self.__history_moves_san.append(move_ia_san)
+
+            try:
+                self.move_piece_san(move_ia_san)
+                self.__history_moves_san.append(move_ia_san)
+
+            except:
+                self.move_piece_san(move_ia_san + "=Q")
+                self.__history_moves_san.append(move_ia_san + "=Q")
+
+            # self.__board = chess.Board(result[1])
+
             engine.close()
 
     @functools.lru_cache()
