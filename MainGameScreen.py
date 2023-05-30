@@ -204,9 +204,10 @@ class MainGameScreen(Scene):
 
     def update(self, sm: SceneManager, inputStream: InputStream):
         if self.table.get_board().turn:
-            self.black_player_time -= (time.time() - self.time_counter)
-        else:
             self.white_player_time -= (time.time() - self.time_counter)
+        else:
+            self.black_player_time -= (time.time() - self.time_counter)
+
 
         self.time_counter = time.time()
 
@@ -240,6 +241,10 @@ class MainGameScreen(Scene):
             whites_text = self.font.render("∞", False,(236, 236, 236))
             blacks_text = self.font.render("∞",False, (236, 236, 236))
         else:
+            if self.white_player_time <= 0:
+                self.white_player_time = 0
+            if self.black_player_time <= 0:
+                self.black_player_time = 0
             whites_text = self.font.render(f"{int(self.white_player_time // 60)}:{int(self.white_player_time % 60)}", False,(236, 236, 236))
             blacks_text = self.font.render(f"{int(self.black_player_time//60)}:{int(self.black_player_time%60)}",False, (236, 236, 236))
 
@@ -500,8 +505,13 @@ class MainGameScreen(Scene):
         if self.ia_time is True:  # Cambiar
             if self.ia_time_2 is True:
                 old_table = self.table.get_board().copy()
+                calculate_time_ia = time.time()
                 self.table.movement_calc()
                 new_table = self.table.get_board()
+                if old_table.turn:
+                    self.white_player_time -= (time.time() - calculate_time_ia)
+                else:
+                    self.black_player_time -= (time.time() - calculate_time_ia)
 
                 ai_move = self.table.two_board_to_piece_move(False, old_table, new_table)
 
@@ -522,23 +532,57 @@ class MainGameScreen(Scene):
 
     def check_status_game(self):
         if self.table.get_board().is_checkmate():
-            print("JAQUE MATE")
+            # print("JAQUE MATE")
             print(self.table.get_board().result())
-            self.ia_time = False  # BORRAR
-            self.ia_time_2 = False  # BORRAR
-
-        if self.table.get_board().is_stalemate() or self.table.get_board().is_insufficient_material():
-            print("TABLAS")
-            print(self.table.get_board().result())
+            if self.table.get_board().result() == "1-0":
+                self.new_game = self.font.render("HA GANADO BLANCAS", False, (236, 236, 236))
+            else:
+                self.new_game = self.font.render("HA GANADO NEGRAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
+            self.history_activated = True
+
+        if self.white_player_time <= 0:
+            self.new_game = self.font.render("HA GANADO NEGRAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
+        if self.black_player_time <= 0:
+            self.new_game = self.font.render("HA GANADO BLANCAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
+
+        if self.table.get_board().is_stalemate() or self.table.get_board().is_insufficient_material():
+            # print("TABLAS")
+            # print(self.table.get_board().result())
+            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
 
         # PROBANDO
         if self.table.get_board().is_fifty_moves():
-            print("fifty moves")
+            # print("fifty moves")
+            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_fivefold_repetition():
-            print("five_repitions")
+            # print("five_repitions")
+            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_seventyfive_moves():
-            print("seventifive moves")
+            # print("seventifive moves")
+            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_repetition():
-            print("is repition")
+            # print("is repition")
+            self.new_game = self.font.render("EMPATE", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
