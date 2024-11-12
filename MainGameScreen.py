@@ -5,6 +5,7 @@ import pygame
 from SceneManager import SceneManager
 
 from SceneManager import SceneManager
+from SettingsScreen import SettingsScreen
 from Utils.InputStream import InputStream
 from Utils.Scene import Scene
 from Utils.constants import screen_width, screen_height
@@ -25,10 +26,8 @@ class MainGameScreen(Scene):
         self.board_border = pygame.image.load('assets/images/bordes_tablero.png')
         self.board_border = pygame.transform.scale(self.board_border, (screen_height * 0.8, screen_height * 0.8))
 
-        # self.board = pygame.image.load("assets/images/tablero.png")
-        img_boards = ["brown", "green", "blue", "purple", "green-plastic", "newspaper"]
         # Cambiar el choice por algo seleccionado por el usuario
-        self.board = pygame.image.load(f"assets/images/boards/{random.choice(img_boards)}.png")
+        self.board = pygame.image.load(f"assets/images/boards/brown.png")
         self.board = pygame.transform.scale(self.board,
                                             (self.board_border.get_width() * 0.9, self.board_border.get_height() * 0.9))
 
@@ -83,6 +82,21 @@ class MainGameScreen(Scene):
             center=(self.clear_brown_card_rect.left + self.clear_brown_card_rect.width * 0.75,
                     self.clear_brown_card_rect.top - 8))
 
+
+        self.exit_img = pygame.image.load("assets/images/icons/salida.png")
+        self.exit_img = pygame.transform.scale(self.exit_img,(screen_width*0.05,screen_width*0.045))
+        self.exit_img_rect = self.exit_img.get_rect(bottomright = (screen_width-screen_width*0.02,screen_height-screen_height*0.04))
+
+        self.settings_img = pygame.image.load("assets/images/icons/configuraciones.png")
+        self.settings_img = pygame.transform.scale(self.settings_img,(screen_width*0.05,screen_width*0.05))
+        self.settings_img_rect = self.settings_img.get_rect(bottomright = (screen_width-screen_width*0.02,self.settings_img.get_width()+screen_height*0.04))
+
+        self.help_img = pygame.image.load("assets/images/icons/help.png")
+        self.help_img = pygame.transform.scale(self.help_img,(screen_width*0.05,screen_width*0.05))
+        self.help_img_rect = self.help_img.get_rect(topright = (screen_width-screen_width*0.02,self.settings_img_rect.bottom+screen_height*0.04))
+
+
+
         # -----------------------------------------------------------------------------
         self.screen = None
 
@@ -120,7 +134,7 @@ class MainGameScreen(Scene):
         # Posicion inicial rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
         # Probar posicion final "r2k2q1/8/8/8/8/8/8/3K4 w - - 0 1"
         # Probar posicion final "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        self.table = Ia(starting_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", depth=1, time=5,
+        self.table = Ia(starting_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", depth=2, time=5,
                         positions=self.positions)
         self.table.append_history_actual_board()
 
@@ -143,6 +157,11 @@ class MainGameScreen(Scene):
                                               (97 * self.aspect_radio_height, 97 * self.aspect_radio_width))
         self.circle3.set_alpha(200)
 
+        self.circle4 = pygame.image.load("assets/images/img_in_board/verde.png").convert_alpha()
+        self.circle4 = pygame.transform.scale(self.circle4,
+                                              (97 * self.aspect_radio_height, 97 * self.aspect_radio_width))
+        self.circle4.set_alpha(200)
+
         # Cargar Sonidos
         self.sound_move_piece = mixer.Sound('assets/sounds/move.wav')
         self.sound_capture_piece = mixer.Sound('assets/sounds/capture.wav')
@@ -159,6 +178,8 @@ class MainGameScreen(Scene):
         self.ia_time_2 = False  # Si es True significa que le toca mover a la IA
         self.history_activated = False  # Si es True significa que se esta visualizando una jugada anterior
         self.history_count = 0  # Lo que hay que sumarle a la posicion de la lista history
+        self.active_recomend_move = False
+        self.actual_recomend_move = None
         self.press_activated = False  # Si es True significa que el usuario esta pulsando con click izquierdo
         self.piece_pressed = Ia.Piece(self.table, self.screen)  # Es la instancia de la pieza que se esta arrastrando
         self.time_press_arrow = 0  # Contador para el tiempo de pulsado de las flechas
@@ -170,21 +191,26 @@ class MainGameScreen(Scene):
         self.time_counter = time.time()
 
     def input(self, sm: SceneManager, inputStream: InputStream):
+
+        if inputStream.mouse.isKeyDown(0) and self.exit_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            sm.set([sm.scenes[0]])
+        elif inputStream.mouse.isKeyDown(0) and self.settings_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            # sm.push(SettingsScreen(self))
+            pass
+        elif inputStream.mouse.isKeyDown(0) and self.help_img_rect.collidepoint(inputStream.mouse.getMousePos()):
+            self.press_recomend_move()
+
         self.input_board(inputStream)
         self.input_mouse(inputStream)
 
     def update(self, sm: SceneManager, inputStream: InputStream):
         if self.table.get_board().turn:
-            self.black_player_time -= (time.time() - self.time_counter)
-        else:
             self.white_player_time -= (time.time() - self.time_counter)
+        else:
+            self.black_player_time -= (time.time() - self.time_counter)
+
 
         self.time_counter = time.time()
-
-
-
-
-
 
 
     def draw(self, sm: SceneManager, screen2: pygame.surface.Surface):
@@ -216,6 +242,10 @@ class MainGameScreen(Scene):
             whites_text = self.font.render("∞", False,(236, 236, 236))
             blacks_text = self.font.render("∞",False, (236, 236, 236))
         else:
+            if self.white_player_time <= 0:
+                self.white_player_time = 0
+            if self.black_player_time <= 0:
+                self.black_player_time = 0
             whites_text = self.font.render(f"{int(self.white_player_time // 60)}:{int(self.white_player_time % 60)}", False,(236, 236, 236))
             blacks_text = self.font.render(f"{int(self.black_player_time//60)}:{int(self.black_player_time%60)}",False, (236, 236, 236))
 
@@ -226,7 +256,12 @@ class MainGameScreen(Scene):
         text_rect = blacks_text.get_rect(center=self.right_small_cream_card.center)
         self.info_surface.blit(blacks_text, text_rect)
 
+        screen2.blit(self.exit_img,self.exit_img_rect)
+        screen2.blit(self.settings_img,self.settings_img_rect)
+        screen2.blit(self.help_img,self.help_img_rect)
+
         self.draw_check_king()
+        self.draw_recomend_move()
         self.draw_pieces()
         self.draw_valid_moves_piece()
         self.draw_press_activated()
@@ -235,6 +270,7 @@ class MainGameScreen(Scene):
         self.check_status_game()
 
     def input_board(self, inputStream):
+
         history_list = self.table.get_history()
         time_to_charge = 0.2
         actual_time = time.time()
@@ -300,6 +336,7 @@ class MainGameScreen(Scene):
                     self.hitbox_valid_moves.clear()
                     self.valid_moves_piece.clear()
                     self.history_count = 0
+                    self.active_recomend_move = False
                     if self.active_ia is True:
                         self.ia_time = True
                     collision_1 = True
@@ -342,9 +379,24 @@ class MainGameScreen(Scene):
                         self.table.append_history_actual_board()
                         self.hitbox_valid_moves.clear()
                         self.valid_moves_piece.clear()
+                        self.active_recomend_move = False
                         self.history_count = 0
                         if self.active_ia is True:
                             self.ia_time = True
+
+    def press_recomend_move(self):
+        if self.ia_time is False and self.history_activated is False and self.active_recomend_move is False:
+            self.actual_recomend_move = self.table.recomend_move()
+            self.active_recomend_move = True
+
+    def draw_recomend_move(self):
+        if self.active_recomend_move is True and self.history_activated is False:
+            self.screen.blit(self.circle4,
+                             (self.positions[self.actual_recomend_move[0]][0] * self.aspect_radio_height,
+                              self.positions[self.actual_recomend_move[0]][1] * self.aspect_radio_width))
+            self.screen.blit(self.circle4,
+                             (self.positions[self.actual_recomend_move[1]][0] * self.aspect_radio_height,
+                              self.positions[self.actual_recomend_move[1]][1] * self.aspect_radio_width))
 
     def draw_check_king(self):
         if self.table.get_board().is_check():
@@ -454,8 +506,13 @@ class MainGameScreen(Scene):
         if self.ia_time is True:  # Cambiar
             if self.ia_time_2 is True:
                 old_table = self.table.get_board().copy()
+                calculate_time_ia = time.time()
                 self.table.movement_calc()
                 new_table = self.table.get_board()
+                if old_table.turn:
+                    self.white_player_time -= (time.time() - calculate_time_ia)
+                else:
+                    self.black_player_time -= (time.time() - calculate_time_ia)
 
                 ai_move = self.table.two_board_to_piece_move(False, old_table, new_table)
 
@@ -476,23 +533,57 @@ class MainGameScreen(Scene):
 
     def check_status_game(self):
         if self.table.get_board().is_checkmate():
-            print("JAQUE MATE")
+            # print("JAQUE MATE")
             print(self.table.get_board().result())
-            self.ia_time = False  # BORRAR
-            self.ia_time_2 = False  # BORRAR
-
-        if self.table.get_board().is_stalemate() or self.table.get_board().is_insufficient_material():
-            print("TABLAS")
-            print(self.table.get_board().result())
+            if self.table.get_board().result() == "1-0":
+                self.new_game = self.font.render("HA GANADO BLANCAS", False, (236, 236, 236))
+            else:
+                self.new_game = self.font.render("HA GANADO NEGRAS", False, (236, 236, 236))
             self.ia_time = False
             self.ia_time_2 = False
+            self.history_activated = True
+
+        if self.white_player_time <= 0:
+            self.new_game = self.font.render("HA GANADO NEGRAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
+        if self.black_player_time <= 0:
+            self.new_game = self.font.render("HA GANADO BLANCAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
+
+        if self.table.get_board().is_stalemate() or self.table.get_board().is_insufficient_material():
+            # print("TABLAS")
+            # print(self.table.get_board().result())
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
 
         # PROBANDO
         if self.table.get_board().is_fifty_moves():
-            print("fifty moves")
+            # print("fifty moves")
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_fivefold_repetition():
-            print("five_repitions")
+            # print("five_repitions")
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_seventyfive_moves():
-            print("seventifive moves")
+            # print("seventifive moves")
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True
         if self.table.get_board().is_repetition():
-            print("is repition")
+            # print("is repition")
+            self.new_game = self.font.render("TABLAS", False, (236, 236, 236))
+            self.ia_time = False
+            self.ia_time_2 = False
+            self.history_activated = True

@@ -151,6 +151,18 @@ class Ia:
     def change_board_FEN(self, value_board_fen):
         self.__board = chess.Board(value_board_fen)
 
+    def recomend_move(self):
+        engine = chess.engine.SimpleEngine.popen_uci(self.__engine_path)
+        old_spice_2 = self.get_board_FEN()
+        start_node = Board(board=self.__board.fen(), parent=None, childs=[])
+        result = self.minmax(actual_node=start_node, depth=0, max_depth=1, start_time=time.time(),
+                             max_time=5, engine=engine)
+
+        move_ia_uci = self.two_board_to_piece_move(True, old_spice_2, result[1])
+        engine.close()
+        # Se devuelve el movimiento que haria la IA
+        return move_ia_uci
+
     def access_data_base(self, movements_list):
         initial_moves = ["a3", "a4", "b3", "b4", "c3", "c4", "d3", "d4", "e3", "e4", "f3", "f4", "g3", "g4", "h3", "h4",
                          "Na3", "Nc3", "Nf3", "Nh3"]
@@ -233,9 +245,19 @@ class Ia:
                                  max_time=self.__max_time, engine=engine)
 
             move_ia_uci = self.two_board_to_piece_move(True, old_spice, result[1])
+
             move_ia_san = self.uci_to_san(move_ia_uci[0] + move_ia_uci[1])
-            self.move_piece_san(move_ia_san)
-            self.__history_moves_san.append(move_ia_san)
+
+            try:
+                self.move_piece_san(move_ia_san)
+                self.__history_moves_san.append(move_ia_san)
+
+            except:
+                self.move_piece_san(move_ia_san + "=Q")
+                self.__history_moves_san.append(move_ia_san + "=Q")
+
+            # self.__board = chess.Board(result[1])
+
             engine.close()
 
     @functools.lru_cache()

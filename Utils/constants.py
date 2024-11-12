@@ -1,2 +1,5 @@
-screen_width = 1920
-screen_height = 1080
+import pygame
+pygame.init()
+info = pygame.display.Info()
+screen_width = info.current_w
+screen_height = info.current_h

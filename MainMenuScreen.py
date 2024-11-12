@@ -26,14 +26,12 @@ class MainMenuScreen(Scene):
         self.quit_text = self.font.render("QUIT", True, (235, 235, 235))
         self.quit_text_rect = self.quit_text.get_rect(center=(screen_width * 0.65, screen_height * 0.5))
 
-        pygame.mixer.music.load('assets/sounds/musica_fondo_2.mp3')
+        pygame.mixer.music.load('assets/sounds/musica_fondo.mp3')
         pygame.mixer.music.play(-1)
 
     def input(self, sm: SceneManager, inputStream: InputStream):
         if inputStream.mouse.isKeyDown(0) and self.start_text_rect.collidepoint(inputStream.mouse.getMousePos()):
             sm.push(GameTypeSelection())
-            pygame.mixer.music.pause()
-            pygame.mixer.music.unload()
         elif inputStream.mouse.isKeyDown(0) and self.quit_text_rect.collidepoint(inputStream.mouse.getMousePos()):
             sm.pop()
 
