@@ -2,3 +2,5 @@
 *.cpp linguist-vendored=true
 *.h linguist-vendored=true
 *.hpp linguist-vendored=true
+Makefile linguist-vendored=true
+makefile linguist-vendored=true
