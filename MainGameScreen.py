@@ -511,8 +511,10 @@ class MainGameScreen(Scene):
                 new_table = self.table.get_board()
                 if old_table.turn:
                     self.white_player_time -= (time.time() - calculate_time_ia)
+                    self.black_player_time += (time.time() - calculate_time_ia)
                 else:
                     self.black_player_time -= (time.time() - calculate_time_ia)
+                    self.white_player_time += (time.time() - calculate_time_ia)
 
                 ai_move = self.table.two_board_to_piece_move(False, old_table, new_table)
 
